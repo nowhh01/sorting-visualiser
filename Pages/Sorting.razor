@@ -1,0 +1,68 @@
+﻿@page "/"
+@using Extensions
+
+<div class="navbar">
+  <button type="button" class="btn btn-dark insertion sort" @onclick="randomizeNumbers">Randomize Numbers</button>
+
+  <button type="button" class="btn btn-dark insertion sort" @onclick="bubbleSort">Bubble Sort</button>
+</div>
+<div style="display: flex; flex-direction: row; width: 100%">
+
+  @for (int i = 0; i < numberCount; i++)
+  {
+    <div style="background-color: @(i == index1 || i == index2 ? "red" : "aqua"); width: 20px; height: @($"{numbers[i]}px"); margin: 10px 5px" />
+  }
+</div>
+
+@code {
+  private Random random = new Random();
+  private int[] numbers = new int[50];
+  private int numberCount = 20;
+  private int index1 = -2;
+  private int index2 = -2;
+
+  protected override void OnInitialized()
+  {
+    randomizeNumbers();
+  }
+
+  protected override void OnParametersSet()
+  {
+    base.OnParametersSet();
+  }
+
+  public override Task SetParametersAsync(ParameterView parameters)
+  {
+    return base.SetParametersAsync(parameters);
+  }
+
+  private void randomizeNumbers()
+  {
+    for (int i = 0; i < numberCount; i++)
+    {
+      numbers[i] = random.Next(0, 100);
+    }
+  }
+
+  private async void bubbleSort()
+  {
+    for (int i = 0; i < numberCount - 1; i++)
+    {
+      for (int j = 0; j < numberCount - i - 1; j++)
+      {
+        index1 = j;
+        index2 = j + 1;
+        StateHasChanged();
+
+        await Task.Delay(1000);
+
+        if (numbers[index1] > numbers[index2])
+        {
+          numbers.Swap(index1, index2);
+
+          StateHasChanged();
+        }
+      }
+    }
+  }
+}
