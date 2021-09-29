@@ -4,7 +4,7 @@
 <div class="navbar">
   <button type="button" class="btn btn-dark" @onclick="handleRandomizingClick">Randomize Numbers</button>
 
-  <button type="button" class="btn btn-dark" disabled="@isPlaying" @onclick="() => sort(ESortType.Bubble)">Bubble Sort</button>
+  <button type="button" class="btn btn-dark" disabled="@hasSorting" @onclick="() => sort(ESortType.Bubble)">Bubble Sort</button>
 </div>
 
 <div style="display: flex; flex-direction: row; width: 100%">
@@ -15,7 +15,7 @@
 </div>
 
 <div class="navbar">
-  <button type="button" class="btn btn-dark" @onclick="handlePauseClick" disabled="@(!isPlaying)">@(mPaused ? "Play" : "Pause")</button>
+  <button type="button" class="btn btn-dark" @onclick="handlePauseClick" disabled="@(!hasSorting)">@(mPaused ? "Play" : "Pause")</button>
 </div>
 
 @code {
@@ -36,7 +36,7 @@
   private int mIndex1 = 0;
   private int mIndex2 = 0;
 
-  private bool isPlaying => mSelectedSortFunc != null;
+  private bool hasSorting => mSelectedSortFunc != null;
 
   protected override void OnInitialized()
   {
