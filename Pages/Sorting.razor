@@ -2,67 +2,123 @@
 @using Extensions
 
 <div class="navbar">
-  <button type="button" class="btn btn-dark insertion sort" @onclick="randomizeNumbers">Randomize Numbers</button>
+  <button type="button" class="btn btn-dark insertion sort" @onclick="handleRandomizingClick">Randomize Numbers</button>
 
-  <button type="button" class="btn btn-dark insertion sort" @onclick="bubbleSort">Bubble Sort</button>
+  <button type="button" class="btn btn-dark insertion sort" disabled="@isPlaying" @onclick="() => sort(ESortType.Bubble)">Bubble Sort</button>
 </div>
-<div style="display: flex; flex-direction: row; width: 100%">
 
-  @for (int i = 0; i < numberCount; i++)
+<div style="display: flex; flex-direction: row; width: 100%">
+  @for (int i = 0; i < mNumberCount; i++)
   {
-    <div style="background-color: @(i == index1 || i == index2 ? "red" : "aqua"); width: 20px; height: @($"{numbers[i]}px"); margin: 10px 5px" />
+    <div style="background-color: @(i == mComparedNumberIndex1 || i == mComparedNumberIndex2? "red" : "aqua"); width: 20px; height: @($"{mNumbers[i] * 2}px"); margin: 10px 5px" />
   }
+</div>
+
+<div class="navbar">
+  <button type="button" class="btn btn-dark insertion sort" @onclick="handlePauseClick" disabled="@(!isPlaying)">@(mPaused ? "Play" : "Pause")</button>
 </div>
 
 @code {
-  private Random random = new Random();
-  private int[] numbers = new int[50];
-  private int numberCount = 20;
-  private int index1 = -2;
-  private int index2 = -2;
+  private enum ESortType
+  {
+    Bubble
+  };
+
+  private Func<Task>[] mSortFuncs;
+  private Random mRandom = new Random();
+  private Func<Task> mSelectedSortFunc;
+  private bool mPaused = false;
+  private int[] mBackupNumbers = new int[50];
+  private int[] mNumbers = new int[50];
+  private int mNumberCount = 20;
+  private int mComparedNumberIndex1 = -1;
+  private int mComparedNumberIndex2 = -1;
+  private int mIndex1 = 0;
+  private int mIndex2 = 0;
+
+  private bool isPlaying => mSelectedSortFunc != null;
 
   protected override void OnInitialized()
   {
+    mSortFuncs = new Func<Task>[] { bubbleSort };
+
     randomizeNumbers();
   }
 
-  protected override void OnParametersSet()
+  private void handleRandomizingClick()
   {
-    base.OnParametersSet();
+    randomizeNumbers();
+
+    initialize();
   }
 
-  public override Task SetParametersAsync(ParameterView parameters)
+  private void handlePauseClick()
   {
-    return base.SetParametersAsync(parameters);
+    mPaused = !mPaused;
+
+    if (!mPaused)
+    {
+      mSelectedSortFunc?.Invoke();
+    }
   }
 
   private void randomizeNumbers()
   {
-    for (int i = 0; i < numberCount; i++)
+    for (int i = 0; i < mNumberCount; i++)
     {
-      numbers[i] = random.Next(0, 100);
+      int number = mRandom.Next(1, 100);
+
+      mNumbers[i] = number;
+      mBackupNumbers[i] = number;
     }
   }
 
-  private async void bubbleSort()
+  private void initialize()
   {
-    for (int i = 0; i < numberCount - 1; i++)
+    mComparedNumberIndex1 = -1;
+    mComparedNumberIndex2 = -1;
+
+    mIndex1 = 0;
+    mIndex2 = 0;
+
+    mSelectedSortFunc = null;
+  }
+
+  private void sort(ESortType sortType)
+  {
+    mSelectedSortFunc = mSortFuncs[(int)sortType];
+
+    mSelectedSortFunc.Invoke();
+  }
+
+  private async Task bubbleSort()
+  {
+    for (; mIndex1 < mNumberCount - 1; mIndex1++)
     {
-      for (int j = 0; j < numberCount - i - 1; j++)
+      for (; mIndex2 < mNumberCount - mIndex1 - 1; mIndex2++)
       {
-        index1 = j;
-        index2 = j + 1;
+        mComparedNumberIndex1 = mIndex2;
+        mComparedNumberIndex2 = mIndex2 + 1;
         StateHasChanged();
 
         await Task.Delay(1000);
 
-        if (numbers[index1] > numbers[index2])
+        if (mPaused)
         {
-          numbers.Swap(index1, index2);
+          mSelectedSortFunc = bubbleSort;
+          return;
+        }
 
+        if (mNumbers[mComparedNumberIndex1] > mNumbers[mComparedNumberIndex2])
+        {
+          mNumbers.Swap(mComparedNumberIndex1, mComparedNumberIndex2);
           StateHasChanged();
         }
       }
+
+      mIndex2 = 0;
     }
+
+    initialize();
   }
 }
