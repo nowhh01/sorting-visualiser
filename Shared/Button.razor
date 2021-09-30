@@ -1,0 +1,10 @@
+﻿<button type="button" class="btn btn-dark" @onclick="OnClick" disabled="@isDisabled">@Title</button>
+
+@code {
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public bool isDisabled { get; set; }
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+}
