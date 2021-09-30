@@ -1,10 +1,11 @@
 ﻿@page "/"
 @using Extensions
+@using SortingVisualiser.Shared
 
 <div class="navbar">
-  <button type="button" class="btn btn-dark" @onclick="handleRandomizingClick">Randomize Numbers</button>
+  <Button Title="Randomize Numbers" OnClick="handleRandomizingClick" />
 
-  <button type="button" class="btn btn-dark" disabled="@hasSorting" @onclick="() => sort(ESortType.Bubble)">Bubble Sort</button>
+  <Button Title="Bubble Sort" isDisabled="hasSorting" OnClick="() => sort(ESortType.Bubble)" />
 </div>
 
 <div style="display: flex; flex-direction: row; width: 100%">
@@ -15,106 +16,119 @@
 </div>
 
 <div class="navbar">
-  <button type="button" class="btn btn-dark" @onclick="handleSkipBackClick" disabled="@(!canSkipBack)">Skip Back</button>
-  <button type="button" class="btn btn-dark" @onclick="handlePauseClick" disabled="@(!hasSorting)">@(mPaused ? "Play" : "Pause")</button>
+  <Button Title="Skip Back" isDisabled="@(!canSkipBack)" OnClick="handleSkipBackClick" />
+  <Button Title="@(mPaused ? "Play" : "Pause")" isDisabled="!hasSorting" OnClick="handlePauseClick" />
+  <Button Title="Skip Forward" isDisabled="!hasSorting" OnClick="handleSkipForwardClick" />
 </div>
 
 @code {
-    private enum ESortType
+  private enum ESortType
+  {
+    Bubble
+  };
+
+  private int[] mBackupNumbers = new int[50];
+  private int[] mNumbers = new int[50];
+  private Random mRandom = new Random();
+
+  private int mNumberCount = 20;
+  private int mComparedNumberIndex1 = -1;
+  private int mComparedNumberIndex2 = -1;
+  private int mIndex1 = 0;
+  private int mIndex2 = 0;
+  private bool mPaused = true;
+  private bool mFinished = false;
+  private bool mSkipForwarding = false;
+
+  private Func<Task>[] mSortFuncs;
+  private Func<Task> mSelectedSortFunc;
+
+  private bool hasSorting => mSelectedSortFunc != null;
+  private bool canSkipBack => hasSorting || mFinished;
+
+  protected override void OnInitialized()
+  {
+    mSortFuncs = new Func<Task>[] { bubbleSort };
+
+    randomizeNumbers();
+  }
+
+  private void handleRandomizingClick()
+  {
+    randomizeNumbers();
+
+    initialize();
+  }
+
+  private void handlePauseClick()
+  {
+    mPaused = !mPaused;
+
+    if (!mPaused)
     {
-      Bubble
-    };
-
-    private Func<Task>[] mSortFuncs;
-    private Random mRandom = new Random();
-    private Func<Task> mSelectedSortFunc;
-    private int[] mBackupNumbers = new int[50];
-    private int[] mNumbers = new int[50];
-    private int mNumberCount = 20;
-    private int mComparedNumberIndex1 = -1;
-    private int mComparedNumberIndex2 = -1;
-    private int mIndex1 = 0;
-    private int mIndex2 = 0;
-    private bool mPaused = true;
-    private bool mFinished = false;
-
-    private bool hasSorting => mSelectedSortFunc != null;
-    private bool canSkipBack => hasSorting || mFinished;
-
-    protected override void OnInitialized()
-    {
-      mSortFuncs = new Func<Task>[] { bubbleSort };
-
-      randomizeNumbers();
-    }
-
-    private void handleRandomizingClick()
-    {
-      randomizeNumbers();
-
-      initialize();
-    }
-
-    private void handlePauseClick()
-    {
-      mPaused = !mPaused;
-
-      if (!mPaused)
-      {
-        mSelectedSortFunc.Invoke();
-      }
-    }
-
-    private void handleSkipBackClick()
-    {
-      mPaused = true;
-
-      initialize();
-
-      mNumbers = (int[])mBackupNumbers.Clone();
-    }
-
-    private void randomizeNumbers()
-    {
-      for (int i = 0; i < mNumberCount; i++)
-      {
-        int number = mRandom.Next(1, 100);
-
-        mNumbers[i] = number;
-        mBackupNumbers[i] = number;
-      }
-    }
-
-    private void initialize()
-    {
-      mComparedNumberIndex1 = -1;
-      mComparedNumberIndex2 = -1;
-
-      mIndex1 = 0;
-      mIndex2 = 0;
-
-      mSelectedSortFunc = null;
-
-      mFinished = false;
-    }
-
-    private void sort(ESortType sortType)
-    {
-      mPaused = false;
-
-      mSelectedSortFunc = mSortFuncs[(int)sortType];
-
       mSelectedSortFunc.Invoke();
     }
+  }
 
-    private async Task bubbleSort()
+  private void handleSkipBackClick()
+  {
+    mPaused = true;
+
+    initialize();
+
+    mNumbers = (int[])mBackupNumbers.Clone();
+  }
+
+  private void handleSkipForwardClick()
+  {
+    mSkipForwarding = true;
+  }
+
+  private void randomizeNumbers()
+  {
+    for (int i = 0; i < mNumberCount; i++)
     {
-      for (; mIndex1 < mNumberCount - 1; mIndex1++)
+      int number = mRandom.Next(1, 100);
+
+      mNumbers[i] = number;
+      mBackupNumbers[i] = number;
+    }
+  }
+
+  private void initialize()
+  {
+    mComparedNumberIndex1 = -1;
+    mComparedNumberIndex2 = -1;
+
+    mIndex1 = 0;
+    mIndex2 = 0;
+
+    mSelectedSortFunc = null;
+
+    mFinished = false;
+    mSkipForwarding = false;
+  }
+
+  private void sort(ESortType sortType)
+  {
+    mPaused = false;
+
+    mSelectedSortFunc = mSortFuncs[(int)sortType];
+
+    mSelectedSortFunc.Invoke();
+  }
+
+  private async Task bubbleSort()
+  {
+    for (; mIndex1 < mNumberCount - 1; mIndex1++)
+    {
+      for (; mIndex2 < mNumberCount - mIndex1 - 1; mIndex2++)
       {
-        for (; mIndex2 < mNumberCount - mIndex1 - 1; mIndex2++)
+        mComparedNumberIndex1 = mIndex2;
+        mComparedNumberIndex2 = mIndex2 + 1;
+
+        if (!mSkipForwarding)
         {
-          mComparedNumberIndex1 = mIndex2;
-          mComparedNumberIndex2 = mIndex2 + 1;
           StateHasChanged();
 
           await Task.Delay(1000);
@@ -124,24 +138,25 @@
             mSelectedSortFunc = bubbleSort;
             return;
           }
-
-          if (mNumbers[mComparedNumberIndex1] > mNumbers[mComparedNumberIndex2])
-          {
-            mNumbers.Swap(mComparedNumberIndex1, mComparedNumberIndex2);
-            StateHasChanged();
-          }
         }
 
-        mIndex2 = 0;
+        if (mNumbers[mComparedNumberIndex1] > mNumbers[mComparedNumberIndex2])
+        {
+          mNumbers.Swap(mComparedNumberIndex1, mComparedNumberIndex2);
+        }
       }
 
-      finishSort();
+      mIndex2 = 0;
     }
 
-    private void finishSort()
-    {
-      initialize();
+    finishSort();
+    StateHasChanged();
+  }
 
-      mFinished = true;
-    }
+  private void finishSort()
+  {
+    initialize();
+
+    mFinished = true;
+  }
 }
