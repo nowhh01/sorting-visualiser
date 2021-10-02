@@ -1,0 +1,8 @@
+﻿<div style="background-color: @BackgroundColor; width: 20px; height: @($"{Height}px"); margin: 10px 5px;" />
+
+@code {
+    [Parameter]
+    public string BackgroundColor { get; set; }
+    [Parameter]
+    public int Height { get; set; }
+}

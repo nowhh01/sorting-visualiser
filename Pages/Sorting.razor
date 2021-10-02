@@ -9,7 +9,11 @@
 <div style="display: flex; flex-direction: row; width: 100%">
   @for (int i = 0; i < mNumberCount; i++)
   {
-    <div style="background-color: @(i == mComparedNumberIndex1 || i == mComparedNumberIndex2? "red" : "aqua"); width: 20px; height: @($"{mNumbers[i] * 2}px"); margin: 10px 5px" />
+    string backgroundColor = i == mComparedNumberIndex1 || i == mComparedNumberIndex2 ? "red" : "aqua";
+    int height = mNumbers[i] * 2;
+    string key = $"{i}{backgroundColor}{height}";
+    
+    <Bar @key="@key" BackgroundColor="@backgroundColor" Height="@height" />
   }
 </div>
 
