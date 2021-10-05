@@ -12,7 +12,7 @@
     string backgroundColor = i == mComparedNumberIndex1 || i == mComparedNumberIndex2 ? "red" : "aqua";
     int height = mNumbers[i] * 2;
     string key = $"{i}{backgroundColor}{height}";
-    
+
     <Bar @key="@key" BackgroundColor="@backgroundColor" Height="@height" />
   }
 </div>
@@ -27,162 +27,164 @@
   </div>
   <div>
     Number of Bars
-    <input type="range" min="10" max="50" value="@mNumberCount" step="10" @oninput="handleBarCountInput" />
+    <input type="range" min="10" max="50" value="@mNumberCount" step="10" disabled="@hasSorting" @oninput="handleBarCountInput" />
   </div>
 </div>
 
 @code {
-  private enum ESortType
-  {
-    Bubble
-  };
-
-  private const int MAX_DELAY_IN_MILLISECONDS = 1000;
-
-  private int[] mBackupNumbers = new int[50];
-  private int[] mNumbers = new int[50];
-  private Random mRandom = new Random();
-
-  private int mNumberCount = 20;
-  private int mComparedNumberIndex1 = -1;
-  private int mComparedNumberIndex2 = -1;
-  private int mIndex1 = 0;
-  private int mIndex2 = 0;
-  private int mDelayInMilliseconds = 500;
-  private bool mPaused = true;
-  private bool mFinished = false;
-  private bool mSkipForwarding = false;
-
-  private Func<Task>[] mSortFuncs;
-  private Func<Task> mSelectedSortFunc;
-
-  private int Speed => (MAX_DELAY_IN_MILLISECONDS - mDelayInMilliseconds) / 100;
-  private bool hasSorting => mSelectedSortFunc != null;
-  private bool canSkipBack => hasSorting || mFinished;
-
-  protected override void OnInitialized()
-  {
-    mSortFuncs = new Func<Task>[] { bubbleSort };
-
-    randomizeNumbers();
-  }
-
-  private void handleRandomizingClick()
-  {
-    randomizeNumbers();
-
-    initialize();
-  }
-
-  private void handlePauseClick()
-  {
-    mPaused = !mPaused;
-
-    if (!mPaused)
+    private enum ESortType
     {
+      Bubble
+    };
+
+    private const int MAX_DELAY_IN_MILLISECONDS = 1000;
+
+    private int[] mBackupNumbers = new int[50];
+    private int[] mNumbers = new int[50];
+    private Random mRandom = new Random();
+
+    private int mNumberCount = 20;
+    private int mComparedNumberIndex1 = -1;
+    private int mComparedNumberIndex2 = -1;
+    private int mIndex1 = 0;
+    private int mIndex2 = 0;
+    private int mDelayInMilliseconds = 500;
+    private bool mPaused = true;
+    private bool mFinished = false;
+    private bool mSkipForwarding = false;
+
+    private Func<Task>[] mSortFuncs;
+    private Func<Task> mSelectedSortFunc;
+
+    private int Speed => (MAX_DELAY_IN_MILLISECONDS - mDelayInMilliseconds) / 100;
+    private bool hasSorting => mSelectedSortFunc != null;
+    private bool canSkipBack => hasSorting || mFinished;
+
+    protected override void OnInitialized()
+    {
+      mSortFuncs = new Func<Task>[] { bubbleSort };
+
+      randomizeNumbers();
+    }
+
+    private void handleRandomizingClick()
+    {
+      randomizeNumbers();
+
+      initialize();
+    }
+
+    private void handlePauseClick()
+    {
+      mPaused = !mPaused;
+
+      if (!mPaused)
+      {
+        mSelectedSortFunc.Invoke();
+      }
+    }
+
+    private void handleSkipBackClick()
+    {
+      mPaused = true;
+
+      initialize();
+
+      mNumbers = (int[])mBackupNumbers.Clone();
+    }
+
+    private void handleSkipForwardClick()
+    {
+      mSkipForwarding = true;
+
       mSelectedSortFunc.Invoke();
     }
-  }
 
-  private void handleSkipBackClick()
-  {
-    mPaused = true;
-
-    initialize();
-
-    mNumbers = (int[])mBackupNumbers.Clone();
-  }
-
-  private void handleSkipForwardClick()
-  {
-    mSkipForwarding = true;
-  }
-
-  private void handleSpeedInput(ChangeEventArgs e)
-  {
-    mDelayInMilliseconds = MAX_DELAY_IN_MILLISECONDS - int.Parse(e.Value.ToString()) * 100;
-  }
-
-  private void handleBarCountInput(ChangeEventArgs e)
-  {
-    mNumberCount = int.Parse(e.Value.ToString());
-
-    randomizeNumbers();
-  }
-
-  private void randomizeNumbers()
-  {
-    for (int i = 0; i < mNumberCount; i++)
+    private void handleSpeedInput(ChangeEventArgs e)
     {
-      int number = mRandom.Next(1, 100);
-
-      mNumbers[i] = number;
-      mBackupNumbers[i] = number;
+      mDelayInMilliseconds = MAX_DELAY_IN_MILLISECONDS - int.Parse(e.Value.ToString()) * 100;
     }
-  }
 
-  private void initialize()
-  {
-    mComparedNumberIndex1 = -1;
-    mComparedNumberIndex2 = -1;
-
-    mIndex1 = 0;
-    mIndex2 = 0;
-
-    mSelectedSortFunc = null;
-
-    mFinished = false;
-    mSkipForwarding = false;
-  }
-
-  private void sort(ESortType sortType)
-  {
-    mPaused = false;
-
-    mSelectedSortFunc = mSortFuncs[(int)sortType];
-
-    mSelectedSortFunc.Invoke();
-  }
-
-  private async Task bubbleSort()
-  {
-    for (; mIndex1 < mNumberCount - 1; mIndex1++)
+    private void handleBarCountInput(ChangeEventArgs e)
     {
-      for (; mIndex2 < mNumberCount - mIndex1 - 1; mIndex2++)
+      mNumberCount = int.Parse(e.Value.ToString());
+
+      randomizeNumbers();
+    }
+
+    private void randomizeNumbers()
+    {
+      for (int i = 0; i < mNumberCount; i++)
       {
-        mComparedNumberIndex1 = mIndex2;
-        mComparedNumberIndex2 = mIndex2 + 1;
+        int number = mRandom.Next(1, 100);
 
-        if (!mSkipForwarding)
+        mNumbers[i] = number;
+        mBackupNumbers[i] = number;
+      }
+    }
+
+    private void initialize()
+    {
+      mComparedNumberIndex1 = -1;
+      mComparedNumberIndex2 = -1;
+
+      mIndex1 = 0;
+      mIndex2 = 0;
+
+      mSelectedSortFunc = null;
+
+      mFinished = false;
+      mSkipForwarding = false;
+    }
+
+    private void sort(ESortType sortType)
+    {
+      mPaused = false;
+
+      mSelectedSortFunc = mSortFuncs[(int)sortType];
+
+      mSelectedSortFunc.Invoke();
+    }
+
+    private async Task bubbleSort()
+    {
+      for (; mIndex1 < mNumberCount - 1; mIndex1++)
+      {
+        for (; mIndex2 < mNumberCount - mIndex1 - 1; mIndex2++)
         {
-          StateHasChanged();
+          mComparedNumberIndex1 = mIndex2;
+          mComparedNumberIndex2 = mIndex2 + 1;
 
-          await Task.Delay(mDelayInMilliseconds);
-
-          if (mPaused)
+          if (!mSkipForwarding)
           {
-            mSelectedSortFunc = bubbleSort;
-            return;
+            StateHasChanged();
+
+            await Task.Delay(mDelayInMilliseconds);
+
+            if (mPaused)
+            {
+              mSelectedSortFunc = bubbleSort;
+              return;
+            }
+          }
+
+          if (mNumbers[mComparedNumberIndex1] > mNumbers[mComparedNumberIndex2])
+          {
+            mNumbers.Swap(mComparedNumberIndex1, mComparedNumberIndex2);
           }
         }
 
-        if (mNumbers[mComparedNumberIndex1] > mNumbers[mComparedNumberIndex2])
-        {
-          mNumbers.Swap(mComparedNumberIndex1, mComparedNumberIndex2);
-        }
+        mIndex2 = 0;
       }
 
-      mIndex2 = 0;
+      finishSort();
+      StateHasChanged();
     }
 
-    finishSort();
-    StateHasChanged();
-  }
+    private void finishSort()
+    {
+      initialize();
 
-  private void finishSort()
-  {
-    initialize();
-
-    mFinished = true;
-  }
+      mFinished = true;
+    }
 }
