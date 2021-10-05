@@ -23,7 +23,7 @@
   <Button Title="Skip Forward" isDisabled="!hasSorting" OnClick="handleSkipForwardClick" />
   <div>
     Speed
-    <input type="range" min="0" max="9" value="@Speed" step="1" @oninput="handleSpeedInput" />
+    <input type="range" min="0" max="9" value="@speed" step="1" @oninput="handleSpeedInput" />
   </div>
   <div>
     Number of Bars
@@ -56,7 +56,7 @@
     private Func<Task>[] mSortFuncs;
     private Func<Task> mSelectedSortFunc;
 
-    private int Speed => (MAX_DELAY_IN_MILLISECONDS - mDelayInMilliseconds) / 100;
+    private int speed => (MAX_DELAY_IN_MILLISECONDS - mDelayInMilliseconds) / 100;
     private bool hasSorting => mSelectedSortFunc != null;
     private bool canSkipBack => hasSorting || mFinished;
 
