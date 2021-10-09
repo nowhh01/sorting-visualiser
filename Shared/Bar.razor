@@ -1,8 +1,16 @@
-﻿<div style="background-color: @BackgroundColor; width: 20px; height: @($"{Height}px"); margin: 10px 5px;" />
+﻿<div style="margin: 10px 5px; text-align: center;">
+  @if (Number.HasValue)
+  {
+    <span>@Number.Value</span>
+  }
+  <div style="background-color: @BackgroundColor; width: 20px; height: @($"{Height}px");" />
+</div>
 
 @code {
-    [Parameter]
-    public string BackgroundColor { get; set; }
-    [Parameter]
-    public int Height { get; set; }
+  [Parameter]
+  public string BackgroundColor { get; set; }
+  [Parameter]
+  public int Height { get; set; }
+  [Parameter]
+  public int? Number { get; set; }
 }
