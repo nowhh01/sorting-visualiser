@@ -1,16 +1,18 @@
-﻿<div style="margin: 10px 5px; text-align: center;">
-  @if (Number.HasValue)
-  {
-    <span>@Number.Value</span>
-  }
-  <div style="background-color: @BackgroundColor; width: 20px; height: @($"{Height}px");" />
-</div>
+﻿@{
+  <div style="margin: 10px 5px; text-align: center; @ContainerStyle">
+    @if (Number.HasValue)
+    {
+      <span>@Number.Value</span>
+    }
+    <div style="@BarStyle" />
+  </div>
+}
 
 @code {
-  [Parameter]
-  public string BackgroundColor { get; set; }
-  [Parameter]
-  public int Height { get; set; }
-  [Parameter]
-  public int? Number { get; set; }
+    [Parameter]
+    public string BarStyle { get; set; } = string.Empty;
+    [Parameter]
+    public string? ContainerStyle { get; set; }
+    [Parameter]
+    public int? Number { get; set; }
 }
