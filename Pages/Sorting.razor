@@ -1,62 +1,70 @@
 ﻿@page "/"
-@using SortingVisualiser.Commands
 
-<div class="navbar">
-  <Button Title="Randomize Numbers" OnClick="handleRandomizingClick" />
-  <Button Title="Bubble Sort" IsDisabled="hasSorting" OnClick="@(() => handleSortClick(ESortType.Bubble))" />
-  <Button Title="Selection Sort" IsDisabled="hasSorting" OnClick="@(() => handleSortClick(ESortType.Selection))" />
-</div>
+@{
+  const string DEFAULT_BAR_COLOR = "DarkGray";
+  const string COMPARED_BAR_COLOR = "Crimson";
+  const string SORTED_BAR_COLOR = "DarkSlateBlue";
+  const string ANIMATED_BAR_COLOR = "LightGreen";
+}
 
-<div style="display: flex; flex-direction: row; width: 100%">
-  @for (int i = 0; i < mController.Numbers.Count; i++)
-  {
-    Tuple<int, int> highlightedIndices = mController.ComparedIndices;
-    List<bool> bSorted = mController.AreSorted;
-    
-    string backgroundColor = bSorted[i] ? "green" : "aqua";
-
-    if (i == highlightedIndices.Item1 || i == highlightedIndices.Item2)
-    {
-      backgroundColor = "red";
-    }
-
-    Tuple<int, int> animatedIndices = mController.SwappedIndices;
-    string? containerStyle = null;
-
-    if (i == animatedIndices.Item1 && isAnimated)
-    {
-      backgroundColor = "yellow";
-      containerStyle = $"animation: swap1 {mDurationInMilliseconds}ms linear;";
-    }
-    else if (i == animatedIndices.Item2 && isAnimated)
-    {
-      backgroundColor = "yellow";
-      containerStyle = $"animation: swap2 {mDurationInMilliseconds}ms linear;";
-    }
-
-    int number = mController.Numbers[i];
-    int height = number * 2;
-
-    string barStyle = $"background-color: {backgroundColor}; width: 20px; height: {height}px;";
-    string key = $"{i}{backgroundColor}{containerStyle}";
-
-    <Bar @key="@key" Number="@number" ContainerStyle="@containerStyle" BarStyle="@barStyle" />
-  }
-</div>
-
-<div class="navbar">
-  <Button Title="Skip Back" IsDisabled="@(!canSkipBack || mbSorting)" OnClick="handleSkipBackClick" />
-  <Button Title="Step Back" IsDisabled="@(!canSkipBack || mbSorting)" OnClick="@handleStepBackClick" />
-  <Button Title="@(mbPaused ? "Play" : "Pause")" IsDisabled="!hasSorting || mController.IsFullySorted" OnClick="handlePauseClick" />
-  <Button Title="Step Forward" IsDisabled="!hasSorting || mController.IsFullySorted || mbSorting" OnClick="handleStepForwardClick" />
-  <Button Title="Skip Forward" IsDisabled="!hasSorting || mbSorting || mController.IsFullySorted" OnClick="handleSkipForwardClick" />
+<div style="display: flex; flex-direction: column; text-align: center;">
   <div>
-    Speed
-    <input type="range" min="0" max="9" value="@speed" step="1" @oninput="handleSpeedInput" />
+    <Button Title="Randomize Numbers" OnClick="handleRandomizingClick" />
+    <Button Title="Bubble Sort" IsDisabled="hasSorting" OnClick="@(() => handleSortClick(ESortType.Bubble))" />
+    <Button Title="Selection Sort" IsDisabled="hasSorting" OnClick="@(() => handleSortClick(ESortType.Selection))" />
   </div>
-  <div>
-    Number of Bars
-    <input type="range" min="10" max="50" value="@mController.Numbers.Count" step="10" disabled="@hasSorting" @oninput="handleBarCountInput" />
+
+  <div style="display: inline-flex; align-self: center;">
+    @for (int i = 0; i < mController.Numbers.Count; i++)
+    {
+      Tuple<int, int> highlightedIndices = mController.ComparedIndices;
+      List<bool> bSorted = mController.AreSorted;
+
+      string backgroundColor = bSorted[i] ? SORTED_BAR_COLOR : DEFAULT_BAR_COLOR;
+
+      if (i == highlightedIndices.Item1 || i == highlightedIndices.Item2)
+      {
+        backgroundColor = COMPARED_BAR_COLOR;
+      }
+
+      Tuple<int, int> animatedIndices = mController.SwappedIndices;
+      string? containerStyle = null;
+
+      if (i == animatedIndices.Item1 && isAnimated)
+      {
+        backgroundColor = ANIMATED_BAR_COLOR;
+        containerStyle = $"animation: swap1 {mDurationInMilliseconds}ms linear;";
+      }
+      else if (i == animatedIndices.Item2 && isAnimated)
+      {
+        backgroundColor = ANIMATED_BAR_COLOR;
+        containerStyle = $"animation: swap2 {mDurationInMilliseconds}ms linear;";
+      }
+
+      int number = mController.Numbers[i];
+      int height = number * 2;
+
+      string barStyle = $"background-color: {backgroundColor}; width: 20px; height: {height}px;";
+      string key = $"{i}{backgroundColor}{containerStyle}";
+
+      <Bar @key="@key" Number="@number" ContainerStyle="@containerStyle" BarStyle="@barStyle" />
+    }
+  </div>
+
+  <div style="display: inline-flex; align-self: center; align-items: center; ">
+    <Button Title="Skip Back" IsDisabled="@(!canSkipBack || mbSorting)" OnClick="handleSkipBackClick" />
+    <Button Title="Step Back" IsDisabled="@(!canSkipBack || mbSorting)" OnClick="@handleStepBackClick" />
+    <Button Title="@(mbPaused ? "Play" : "Pause")" IsDisabled="!hasSorting || mController.IsFullySorted" OnClick="handlePauseClick" />
+    <Button Title="Step Forward" IsDisabled="!hasSorting || mController.IsFullySorted || mbSorting" OnClick="handleStepForwardClick" />
+    <Button Title="Skip Forward" IsDisabled="!hasSorting || mbSorting || mController.IsFullySorted" OnClick="handleSkipForwardClick" />
+    <div>
+      Speed
+      <input type="range" min="0" max="9" value="@speed" step="1" @oninput="handleSpeedInput" />
+    </div>
+    <div>
+      Number of Bars
+      <input type="range" min="10" max="50" value="@mController.Numbers.Count" step="10" disabled="@hasSorting" @oninput="handleBarCountInput" />
+    </div>
   </div>
 </div>
 
