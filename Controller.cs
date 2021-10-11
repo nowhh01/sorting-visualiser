@@ -26,7 +26,7 @@ namespace SortingVisualiser
         public List<bool> AreSorted { get; set; } = new(50);
         public Tuple<int, int> ComparedIndices { get; set; } = new(-1, -1);
         public Tuple<int, int> SwappedIndices { get; set; } = new(-1, -1);
-        
+
         public bool SkipForwarding { get; set; }
         public bool IsFullySorted { get; set; }
         public bool IsSorting { get; set; }
@@ -117,6 +117,8 @@ namespace SortingVisualiser
             {
                 command = mSelectedSortingSteps?.Current;
 
+                moveNextStep();
+             
                 if (command is not null)
                 {
                     mCommands.Add(command);
@@ -124,8 +126,6 @@ namespace SortingVisualiser
             }
 
             command?.Execute();
-
-            moveNextStep();
         }
 
         public void StepBack()
@@ -136,7 +136,7 @@ namespace SortingVisualiser
 
             mCurrentStep--;
 
-            if(IsFullySorted)
+            if (IsFullySorted)
             {
                 IsFullySorted = false;
             }
