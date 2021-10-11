@@ -135,6 +135,11 @@ namespace SortingVisualiser
             command.Undo();
 
             mCurrentStep--;
+
+            if(IsFullySorted)
+            {
+                IsFullySorted = false;
+            }
         }
 
         private void moveNextStep()
