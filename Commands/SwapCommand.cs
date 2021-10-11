@@ -16,19 +16,19 @@ namespace SortingVisualiser.Commands
 
         public void Execute()
         {
-            swap(mIndices.Item1, mIndices.Item2);
+            swap(mIndices);
         }
 
         public void Undo()
         {
-            swap(mIndices.Item2, mIndices.Item1);
+            swap(new(mIndices.Item2, mIndices.Item1));
         }
 
-        private void swap(int index1, int index2)
+        private void swap(Tuple<int, int> indices)
         {
-            mController.IsSwapped = true;
+            mController.Numbers.Swap(indices.Item1, indices.Item2);
 
-            mController.Numbers.Swap(index1, index2);
+            mController.SwappedIndices = indices;
         }
     }
 }

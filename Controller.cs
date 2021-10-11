@@ -1,50 +1,56 @@
 ﻿using SortingVisualiser.Commands;
+using SortingVisualiser.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SortingVisualiser
 {
+    public enum ESortType
+    {
+        Bubble,
+        Selection
+    };
+
     public class Controller
     {
         private readonly List<ICommand> mCommands = new(50);
         private readonly List<int> mBackupNumbers = new(50);
+        private readonly Func<IEnumerator<ICommand>>[] mSorts;
         private readonly Random mRandom = new();
 
         private IEnumerator<ICommand>? mSelectedSortingSteps;
-
-        private Tuple<int, int> mComparedIndices = new(-1, -1);
         private int mCurrentStep = -1;
 
-        public IEnumerator<ICommand>? SelectedSortingSteps
-        {
-            get => mSelectedSortingSteps;
-            set
-            {
-                mSelectedSortingSteps = value;
-
-                if (value is not null)
-                {
-                    moveNextStep();
-                }
-            }
-        }
         public List<int> Numbers { get; } = new(50);
         public List<bool> AreSorted { get; set; } = new(50);
-        public Tuple<int, int> ComparedIndices
-        {
-            get => mComparedIndices;
-            set
-            {
-                mComparedIndices = value;
-            }
-        }
+        public Tuple<int, int> ComparedIndices { get; set; } = new(-1, -1);
+        public Tuple<int, int> SwappedIndices { get; set; } = new(-1, -1);
+        
         public bool SkipForwarding { get; set; }
         public bool IsFullySorted { get; set; }
         public bool IsSorting { get; set; }
-        public bool IsSwapped { get; set; }
+        public bool IsSwapped
+        {
+            get => SwappedIndices.Item1 != -1 && SwappedIndices.Item2 != -1;
+            set
+            {
+                if (!value)
+                {
+                    SwappedIndices = new(-1, -1);
+                }
+            }
+        }
+        public bool HasSort => mSelectedSortingSteps is not null;
 
         public Controller(int numberCount)
         {
+            mSorts = new Func<IEnumerator<ICommand>>[]
+            {
+                () => Algorithm.BubbleSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
+                () => Algorithm.SelectionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex)
+            };
+
             RandomizeNumbers(numberCount);
         }
 
@@ -79,13 +85,22 @@ namespace SortingVisualiser
         {
             ComparedIndices = new(-1, -1);
 
-            SelectedSortingSteps = null;
+            mSelectedSortingSteps = null;
 
             IsFullySorted = false;
             IsSwapped = false;
 
             mCurrentStep = -1;
             mCommands.Clear();
+        }
+
+        public void ChangeSort(ESortType sortType)
+        {
+            Func<IEnumerator<ICommand>> enumerator = mSorts[(int)sortType];
+
+            mSelectedSortingSteps = enumerator.Invoke();
+
+            moveNextStep();
         }
 
         public void StepForward()
@@ -100,7 +115,7 @@ namespace SortingVisualiser
             }
             else
             {
-                command = SelectedSortingSteps?.Current;
+                command = mSelectedSortingSteps?.Current;
 
                 if (command is not null)
                 {
@@ -128,6 +143,21 @@ namespace SortingVisualiser
             {
                 IsFullySorted = !mSelectedSortingSteps.MoveNext();
             }
+        }
+
+        private ICommand changeComparedIndices(int index1, int index2)
+        {
+            return new IndicesChangeCommand(this, index1, index2);
+        }
+
+        private ICommand swapIndices(int index1, int index2)
+        {
+            return new SwapCommand(this, index1, index2);
+        }
+
+        private ICommand markAsSortedIndex(int index)
+        {
+            return new SortedMarkCommand(this, index);
         }
     }
 }
