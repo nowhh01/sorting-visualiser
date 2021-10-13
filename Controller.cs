@@ -9,7 +9,8 @@ namespace SortingVisualiser
     public enum ESortType
     {
         Bubble,
-        Selection
+        Selection,
+        Insertion
     };
 
     public class Controller
@@ -48,7 +49,8 @@ namespace SortingVisualiser
             mSorts = new Func<IEnumerator<ICommand>>[]
             {
                 () => Algorithm.BubbleSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
-                () => Algorithm.SelectionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex)
+                () => Algorithm.SelectionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
+                () => Algorithm.InsertionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex)
             };
 
             RandomizeNumbers(numberCount);
