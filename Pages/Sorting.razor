@@ -1,12 +1,5 @@
 ﻿@page "/"
 
-@{
-  const string DEFAULT_BAR_COLOR = "DarkGray";
-  const string COMPARED_BAR_COLOR = "Crimson";
-  const string SORTED_BAR_COLOR = "DarkSlateBlue";
-  const string ANIMATED_BAR_COLOR = "LightGreen";
-}
-
 <div style="display: flex; flex-direction: column; text-align: center;">
   <div>
     <Button Title="Randomize Numbers" OnClick="handleRandomizingClick" />
@@ -15,42 +8,7 @@
     <Button Title="Insertion Sort" IsDisabled="hasSort" OnClick="@(() => handleSortClick(ESortType.Insertion))" />
   </div>
 
-  <div style="display: inline-flex; align-self: center;">
-    @for (int i = 0; i < mController.Numbers.Count; i++)
-    {
-      Tuple<int, int> highlightedIndices = mController.ComparedIndices;
-      List<bool> bSorted = mController.AreSorted;
-
-      string backgroundColor = bSorted[i] ? SORTED_BAR_COLOR : DEFAULT_BAR_COLOR;
-
-      if (i == highlightedIndices.Item1 || i == highlightedIndices.Item2)
-      {
-        backgroundColor = COMPARED_BAR_COLOR;
-      }
-
-      Tuple<int, int> animatedIndices = mController.SwappedIndices;
-      string? containerStyle = null;
-
-      if (i == animatedIndices.Item1 && isAnimated)
-      {
-        backgroundColor = ANIMATED_BAR_COLOR;
-        containerStyle = $"animation: swap1 {mDurationInMilliseconds}ms linear;";
-      }
-      else if (i == animatedIndices.Item2 && isAnimated)
-      {
-        backgroundColor = ANIMATED_BAR_COLOR;
-        containerStyle = $"animation: swap2 {mDurationInMilliseconds}ms linear;";
-      }
-
-      int number = mController.Numbers[i];
-      int height = number * 2;
-
-      string barStyle = $"background-color: {backgroundColor}; width: 20px; height: {height}px;";
-      string key = $"{i}{backgroundColor}{containerStyle}";
-
-      <Bar @key="@key" Number="@number" ContainerStyle="@containerStyle" BarStyle="@barStyle" />
-    }
-  </div>
+  <Display Controller="@mController" DurationInMilliseconds="@mDurationInMilliseconds" />
 
   <div style="display: inline-flex; align-self: center; align-items: center; ">
     <Button Title="Skip Back" IsDisabled="@(!canSkipBack || mbSorting)" OnClick="handleSkipBackClick" />
@@ -69,169 +27,143 @@
   </div>
 </div>
 
-@if (isAnimated)
-{
-  Tuple<int, int> indices = mController.SwappedIndices;
-
-  <style>
-    @@keyframes swap1 {
-      0% {
-        transform: translateX(@($"{(indices.Item2 - indices.Item1) * 30}px"))
-      }
-      100% {
-        transform: translateX("0px")
-      }
-    }
-
-    @@keyframes swap2 {
-      0% {
-        transform: translateX(@($"{(indices.Item1 - indices.Item2) * 30}px"))
-      }
-      100% {
-        transform: translateX("0px")
-      }
-    }
-  </style>
-}
-
 @code {
-    private const int MAX_DURATION_IN_MILLISECONDS = 2000;
-    private const int DEFAULT_DURATION_IN_MILLISECONDS = 1000;
-    private const int DEFAULT_NUMBER_COUNT = 20;
+  private const int MAX_DURATION_IN_MILLISECONDS = 2000;
+  private const int DEFAULT_DURATION_IN_MILLISECONDS = 1000;
+  private const int DEFAULT_NUMBER_COUNT = 20;
 
-    private Controller mController = new(DEFAULT_NUMBER_COUNT);
-    private int mDurationInMilliseconds = DEFAULT_DURATION_IN_MILLISECONDS;
-    private bool mbPaused = true;
-    private bool mbSorting = false;
+  private Controller mController = new(DEFAULT_NUMBER_COUNT);
+  private int mDurationInMilliseconds = DEFAULT_DURATION_IN_MILLISECONDS;
+  private bool mbPaused = true;
+  private bool mbSorting = false;
 
-    private int comparingDurationInMilliseconds => mDurationInMilliseconds / 2;
-    private int speed => (MAX_DURATION_IN_MILLISECONDS - mDurationInMilliseconds) / (MAX_DURATION_IN_MILLISECONDS / 10);
-    private bool hasSort => mController.HasSort;
-    private bool canSkipBack => hasSort || mController.IsFullySorted;
-    private bool isAnimated => mController.IsSwapped;
+  private int comparingDurationInMilliseconds => mDurationInMilliseconds / 2;
+  private int speed => (MAX_DURATION_IN_MILLISECONDS - mDurationInMilliseconds) / (MAX_DURATION_IN_MILLISECONDS / 10);
+  private bool hasSort => mController.HasSort;
+  private bool canSkipBack => hasSort || mController.IsFullySorted;
 
-    private void handleRandomizingClick()
+  private void handleRandomizingClick()
+  {
+    mController.RandomizeNumbers(mController.Numbers.Count);
+
+    mController.Initialize();
+  }
+
+  private void handleSkipBackClick()
+  {
+    mbPaused = true;
+
+    mController.InitializeWithBackup();
+  }
+
+  private void handleStepBackClick()
+  {
+    _ = stepBackAsync();
+  }
+
+  private void handlePauseClick()
+  {
+    mbPaused = !mbPaused;
+
+    if (!mbPaused)
     {
-      mController.RandomizeNumbers(mController.Numbers.Count);
-
-      mController.Initialize();
-    }
-
-    private void handleSkipBackClick()
-    {
-      mbPaused = true;
-
-      mController.InitializeWithBackup();
-    }
-
-    private void handleStepBackClick()
-    {
-      _ = stepBackAsync();
-    }
-
-    private void handlePauseClick()
-    {
-      mbPaused = !mbPaused;
-
-      if (!mbPaused)
-      {
-        _ = sortAsync();
-      }
-    }
-
-    private void handleStepForwardClick()
-    {
-      _ = stepForwardAsync();
-    }
-
-    private void handleSkipForwardClick()
-    {
-      mbSorting = true;
-
-      while (!mController.IsFullySorted)
-      {
-        mController.StepForward();
-      }
-
-      mController.IsSwapped = false;
-
-      mbSorting = false;
-    }
-
-    private void handleSpeedInput(ChangeEventArgs e)
-    {
-      if (e.Value is not null)
-      {
-        mDurationInMilliseconds = MAX_DURATION_IN_MILLISECONDS - int.Parse(e.Value.ToString()!) * (MAX_DURATION_IN_MILLISECONDS / 10);
-      }
-    }
-
-    private void handleBarCountInput(ChangeEventArgs e)
-    {
-      if (!hasSort && e.Value is not null)
-      {
-        int count = int.Parse(e.Value.ToString()!);
-
-        mController.RandomizeNumbers(count);
-      }
-    }
-
-    private void handleSortClick(ESortType sortType)
-    {
-      mController.ChangeSort(sortType);
-
-      mbPaused = false;
-
       _ = sortAsync();
     }
+  }
 
-    private async Task sortAsync()
+  private void handleStepForwardClick()
+  {
+    _ = stepForwardAsync();
+  }
+
+  private void handleSkipForwardClick()
+  {
+    mbSorting = true;
+
+    while (!mController.IsFullySorted)
     {
-      while (!mController.IsFullySorted && !mbPaused)
-      {
-        await stepForwardAsync();
-      }
-    }
-
-    private async Task stepForwardAsync()
-    {
-      mbSorting = true;
-      StateHasChanged();
-
       mController.StepForward();
-      StateHasChanged();
-
-      await delayAsync();
-
-      mbSorting = false;
-      StateHasChanged();
     }
 
-    private async Task stepBackAsync()
+    mController.IsSwapped = false;
+
+    mbSorting = false;
+  }
+
+  private void handleSpeedInput(ChangeEventArgs e)
+  {
+    if (e.Value is not null)
     {
-      mbSorting = true;
-      StateHasChanged();
-
-      mController.StepBack();
-      StateHasChanged();
-
-      await delayAsync();
-
-      mbSorting = false;
-      StateHasChanged();
+      mDurationInMilliseconds = MAX_DURATION_IN_MILLISECONDS - int.Parse(e.Value.ToString()!) * (MAX_DURATION_IN_MILLISECONDS / 10);
     }
+  }
 
-    private async Task delayAsync()
+  private void handleBarCountInput(ChangeEventArgs e)
+  {
+    if (!hasSort && e.Value is not null)
     {
-      if (mController.IsSwapped)
-      {
-        await Task.Delay(mDurationInMilliseconds);
+      int count = int.Parse(e.Value.ToString()!);
 
-        mController.IsSwapped = false;
-      }
-      else
-      {
-        await Task.Delay(comparingDurationInMilliseconds);
-      }
+      mController.RandomizeNumbers(count);
     }
+  }
+
+  private void handleSortClick(ESortType sortType)
+  {
+    mController.ChangeSort(sortType);
+
+    mbPaused = false;
+
+    _ = sortAsync();
+  }
+
+  private async Task sortAsync()
+  {
+    while (!mController.IsFullySorted && !mbPaused)
+    {
+      await stepForwardAsync();
+    }
+  }
+
+  private async Task stepForwardAsync()
+  {
+    mbSorting = true;
+    StateHasChanged();
+
+    mController.StepForward();
+    StateHasChanged();
+
+    await delayAsync();
+
+    mbSorting = false;
+    StateHasChanged();
+  }
+
+  private async Task stepBackAsync()
+  {
+    mbSorting = true;
+    StateHasChanged();
+
+    mController.StepBack();
+    StateHasChanged();
+
+    await delayAsync();
+
+    mbSorting = false;
+    StateHasChanged();
+  }
+
+  private async Task delayAsync()
+  {
+    if (mController.IsSwapped)
+    {
+      await Task.Delay(mDurationInMilliseconds);
+
+      mController.IsSwapped = false;
+    }
+    else
+    {
+      await Task.Delay(comparingDurationInMilliseconds);
+    }
+  }
 }

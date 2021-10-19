@@ -1,0 +1,77 @@
+﻿@{
+  const string DEFAULT_BAR_COLOR = "DarkGray";
+  const string COMPARED_BAR_COLOR = "Crimson";
+  const string SORTED_BAR_COLOR = "DarkSlateBlue";
+  const string ANIMATED_BAR_COLOR = "LightGreen";
+}
+
+<div style="display: inline-flex; align-self: center;">
+  @for (int i = 0; i < Controller.Numbers.Count; i++)
+  {
+    Tuple<int, int> highlightedIndices = Controller.ComparedIndices;
+    List<bool> bSorted = Controller.AreSorted;
+
+    string backgroundColor = bSorted[i] ? SORTED_BAR_COLOR : DEFAULT_BAR_COLOR;
+
+    if (i == highlightedIndices.Item1 || i == highlightedIndices.Item2)
+    {
+      backgroundColor = COMPARED_BAR_COLOR;
+    }
+
+    Tuple<int, int> animatedIndices = Controller.SwappedIndices;
+    string? containerStyle = null;
+
+    if (i == animatedIndices.Item1 && isAnimated)
+    {
+      backgroundColor = ANIMATED_BAR_COLOR;
+      containerStyle = $"animation: swap1 {DurationInMilliseconds}ms linear;";
+    }
+    else if (i == animatedIndices.Item2 && isAnimated)
+    {
+      backgroundColor = ANIMATED_BAR_COLOR;
+      containerStyle = $"animation: swap2 {DurationInMilliseconds}ms linear;";
+    }
+
+    int number = Controller.Numbers[i];
+    int height = number * 2;
+
+    string barStyle = $"background-color: {backgroundColor}; width: 20px; height: {height}px;";
+    string key = $"{i}{backgroundColor}{containerStyle}";
+
+    <Bar @key="@key" Number="@number" ContainerStyle="@containerStyle" BarStyle="@barStyle" />
+  }
+</div>
+
+@if (isAnimated)
+{
+  Tuple<int, int> indices = Controller.SwappedIndices;
+
+  <style>
+    @@keyframes swap1 {
+      0% {
+        transform: translateX(@($"{(indices.Item2 - indices.Item1) * 30}px"))
+      }
+      100% {
+        transform: translateX("0px")
+      }
+    }
+
+    @@keyframes swap2 {
+      0% {
+        transform: translateX(@($"{(indices.Item1 - indices.Item2) * 30}px"))
+      }
+      100% {
+        transform: translateX("0px")
+      }
+    }
+  </style>
+}
+
+@code {
+  [Parameter]
+  public Controller Controller { get; set; }
+  [Parameter]
+  public int DurationInMilliseconds { get; set; }
+
+  private bool isAnimated => Controller.IsSwapped;
+}
