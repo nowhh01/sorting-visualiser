@@ -1,8 +1,6 @@
 ﻿using SortingVisualiser.Commands;
-using SortingVisualiser.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SortingVisualiser
 {
@@ -10,7 +8,8 @@ namespace SortingVisualiser
     {
         Bubble,
         Selection,
-        Insertion
+        Insertion,
+        Merge,
     };
 
     public class Controller
@@ -25,6 +24,7 @@ namespace SortingVisualiser
 
         public List<int> Numbers { get; } = new(50);
         public List<bool> AreSorted { get; set; } = new(50);
+        public Tuple<int, int>[] MovedIndices { get; set; } = Array.Empty<Tuple<int, int>>();
         public Tuple<int, int> ComparedIndices { get; set; } = new(-1, -1);
         public Tuple<int, int> SwappedIndices { get; set; } = new(-1, -1);
 
@@ -42,6 +42,17 @@ namespace SortingVisualiser
                 }
             }
         }
+        public bool IsMoved
+        {
+            get => MovedIndices != Array.Empty<Tuple<int, int>>();
+            set
+            {
+                if (!value)
+                {
+                    MovedIndices = Array.Empty<Tuple<int, int>>();
+                }
+            }
+        }
         public bool HasSort => mSelectedSortingSteps is not null;
 
         public Controller(int numberCount)
@@ -50,7 +61,8 @@ namespace SortingVisualiser
             {
                 () => Algorithm.BubbleSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
                 () => Algorithm.SelectionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
-                () => Algorithm.InsertionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex)
+                () => Algorithm.InsertionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
+                () => Algorithm.MergeSort(Numbers, changeComparedIndices, moveIndices, markAsSortedIndex),
             };
 
             RandomizeNumbers(numberCount);
@@ -160,6 +172,11 @@ namespace SortingVisualiser
         private ICommand swapIndices(int index1, int index2)
         {
             return new SwapCommand(this, index1, index2);
+        }
+
+        private ICommand moveIndices(int indexFrom, int indexTo)
+        {
+            return new MoveCommand(this, indexFrom, indexTo);
         }
 
         private ICommand markAsSortedIndex(int index)

@@ -2,7 +2,8 @@
   const string DEFAULT_BAR_COLOR = "DarkGray";
   const string COMPARED_BAR_COLOR = "Crimson";
   const string SORTED_BAR_COLOR = "DarkSlateBlue";
-  const string ANIMATED_BAR_COLOR = "LightGreen";
+  const string SWAP_ANIMATED_BAR_COLOR = "LightGreen";
+  const string MOVE_ANIMATED_BAR_COLOR = "RosyBrown";
 }
 
 <div style="display: inline-flex; align-self: center;">
@@ -21,15 +22,31 @@
     Tuple<int, int> animatedIndices = Controller.SwappedIndices;
     string? containerStyle = null;
 
-    if (i == animatedIndices.Item1 && isAnimated)
+    if (isSwapAnimated)
     {
-      backgroundColor = ANIMATED_BAR_COLOR;
-      containerStyle = $"animation: swap1 {DurationInMilliseconds}ms linear;";
+      if (i == animatedIndices.Item1)
+      {
+        backgroundColor = SWAP_ANIMATED_BAR_COLOR;
+        containerStyle = $"animation: swap1 {DurationInMilliseconds}ms linear;";
+      }
+      else if (i == animatedIndices.Item2)
+      {
+        backgroundColor = SWAP_ANIMATED_BAR_COLOR;
+        containerStyle = $"animation: swap2 {DurationInMilliseconds}ms linear;";
+      }
     }
-    else if (i == animatedIndices.Item2 && isAnimated)
+    else if (isMoveAnimated)
     {
-      backgroundColor = ANIMATED_BAR_COLOR;
-      containerStyle = $"animation: swap2 {DurationInMilliseconds}ms linear;";
+      Tuple<int, int>? tuple =
+        Controller.MovedIndices.FirstOrDefault(tuple => tuple.Item2 == i);
+
+      if (tuple is not null)
+      {
+        int gap = tuple.Item1 - tuple.Item2;
+
+        backgroundColor = MOVE_ANIMATED_BAR_COLOR;
+        containerStyle = $"animation: move{gap} {DurationInMilliseconds}ms linear;";
+      }
     }
 
     int number = Controller.Numbers[i];
@@ -42,7 +59,7 @@
   }
 </div>
 
-@if (isAnimated)
+@if (isSwapAnimated)
 {
   Tuple<int, int> indices = Controller.SwappedIndices;
 
@@ -66,6 +83,27 @@
     }
   </style>
 }
+else if (isMoveAnimated)
+{
+  IEnumerable<int> gaps = Controller
+    .MovedIndices
+    .Select(tuple => tuple.Item1 - tuple.Item2)
+    .Distinct();
+
+  @foreach (int gap in gaps)
+  {
+    <style>
+      @@keyframes @($"move{gap}") {
+        0% {
+          transform: translateX(@($"{gap * 30}px"))
+        }
+        100% {
+          transform: translateX("0px")
+        }
+      }
+    </style>
+  }
+}
 
 @code {
   [Parameter]
@@ -73,5 +111,6 @@
   [Parameter]
   public int DurationInMilliseconds { get; set; }
 
-  private bool isAnimated => Controller.IsSwapped;
+  private bool isSwapAnimated => Controller.IsSwapped;
+  private bool isMoveAnimated => Controller.IsMoved;
 }

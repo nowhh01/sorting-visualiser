@@ -6,6 +6,7 @@
     <Button Title="Bubble Sort" IsDisabled="hasSort" OnClick="@(() => handleSortClick(ESortType.Bubble))" />
     <Button Title="Selection Sort" IsDisabled="hasSort" OnClick="@(() => handleSortClick(ESortType.Selection))" />
     <Button Title="Insertion Sort" IsDisabled="hasSort" OnClick="@(() => handleSortClick(ESortType.Insertion))" />
+    <Button Title="Merge Sort" IsDisabled="hasSort" OnClick="@(() => handleSortClick(ESortType.Merge))" />
   </div>
 
   <Display Controller="@mController" DurationInMilliseconds="@mDurationInMilliseconds" />
@@ -155,11 +156,12 @@
 
   private async Task delayAsync()
   {
-    if (mController.IsSwapped)
+    if (mController.IsSwapped || mController.IsMoved)
     {
       await Task.Delay(mDurationInMilliseconds);
 
       mController.IsSwapped = false;
+      mController.IsMoved = false;
     }
     else
     {
