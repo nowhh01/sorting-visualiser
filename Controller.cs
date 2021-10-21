@@ -10,6 +10,7 @@ namespace SortingVisualiser
         Selection,
         Insertion,
         Merge,
+        Quick,
     };
 
     public class Controller
@@ -63,6 +64,7 @@ namespace SortingVisualiser
                 () => Algorithm.SelectionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
                 () => Algorithm.InsertionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
                 () => Algorithm.MergeSort(Numbers, changeComparedIndices, moveIndices, markAsSortedIndex),
+                () => Algorithm.QuickSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
             };
 
             RandomizeNumbers(numberCount);
