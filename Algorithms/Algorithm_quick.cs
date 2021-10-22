@@ -40,28 +40,26 @@ namespace SortingVisualiser
             if (rightEnd >= leftOffset)
             {
                 int pivot = numbers[leftOffset];
-                int leftIndex = leftOffset + 1;
+                int leftIndex = leftOffset;
                 int rightIndex = rightEnd;
 
                 while (true)
                 {
-                    while (leftIndex < rightEnd)
+                    while (++leftIndex < rightEnd)
                     {
                         yield return changeComparedIndices(leftIndex, leftOffset);
 
-                        if (numbers[leftIndex] >= pivot)
+                        if (numbers[leftIndex] > pivot)
                         {
                             break;
                         }
-
-                        leftIndex++;
                     }
 
-                    while (leftIndex > leftOffset)
+                    while (rightIndex > leftOffset)
                     {
                         yield return changeComparedIndices(leftOffset, rightIndex);
 
-                        if (pivot >= numbers[rightIndex])
+                        if (pivot > numbers[rightIndex])
                         {
                             break;
                         }
