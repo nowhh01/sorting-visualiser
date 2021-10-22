@@ -11,6 +11,7 @@ namespace SortingVisualiser
         Insertion,
         Merge,
         Quick,
+        Heap,
     };
 
     public class Controller
@@ -65,6 +66,7 @@ namespace SortingVisualiser
                 () => Algorithm.InsertionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
                 () => Algorithm.MergeSort(Numbers, changeComparedIndices, moveIndices, markAsSortedIndex),
                 () => Algorithm.QuickSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
+                () => Algorithm.HeapSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
             };
 
             RandomizeNumbers(numberCount);
