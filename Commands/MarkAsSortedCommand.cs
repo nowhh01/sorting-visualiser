@@ -2,14 +2,14 @@
 
 namespace SortingVisualiser.Commands
 {
-    public class SortedMarkCommand : ICommand
+    public class MarkAsSortedCommand : ICommand
     {
         private readonly Controller mController;
         private readonly int mIndex;
 
         private Tuple<int, int>? mPrevIndices;
 
-        public SortedMarkCommand(Controller controller, int index)
+        public MarkAsSortedCommand(Controller controller, int index)
         {
             mController = controller;
             mIndex = index;
@@ -20,7 +20,7 @@ namespace SortingVisualiser.Commands
             mPrevIndices = mController.ComparedIndices;
 
             mController.ComparedIndices = new(-1, -1);
-            mController.AreSorted[mIndex] = true;
+            mController.HasSortedNumbers[mIndex] = true;
         }
 
         public void Undo()
@@ -28,7 +28,7 @@ namespace SortingVisualiser.Commands
             if (mPrevIndices is not null)
             {
                 mController.ComparedIndices = mPrevIndices!;
-                mController.AreSorted[mIndex] = false;
+                mController.HasSortedNumbers[mIndex] = false;
             }
         }
     }

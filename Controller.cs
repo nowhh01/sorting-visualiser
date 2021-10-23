@@ -25,7 +25,7 @@ namespace SortingVisualiser
         private int mCurrentStep = -1;
 
         public List<int> Numbers { get; } = new(50);
-        public List<bool> AreSorted { get; set; } = new(50);
+        public List<bool> HasSortedNumbers { get; set; } = new(50);
         public Tuple<int, int>[] MovedIndices { get; set; } = Array.Empty<Tuple<int, int>>();
         public Tuple<int, int> ComparedIndices { get; set; } = new(-1, -1);
         public Tuple<int, int> SwappedIndices { get; set; } = new(-1, -1);
@@ -76,7 +76,7 @@ namespace SortingVisualiser
         {
             Numbers.Clear();
             mBackupNumbers.Clear();
-            AreSorted.Clear();
+            HasSortedNumbers.Clear();
 
             for (int i = 0; i < count; i++)
             {
@@ -84,7 +84,7 @@ namespace SortingVisualiser
 
                 Numbers.Add(number);
                 mBackupNumbers.Add(number);
-                AreSorted.Add(false);
+                HasSortedNumbers.Add(false);
             }
         }
 
@@ -95,7 +95,7 @@ namespace SortingVisualiser
             for (int i = 0; i < mBackupNumbers.Count; i++)
             {
                 Numbers[i] = mBackupNumbers[i];
-                AreSorted[i] = false;
+                HasSortedNumbers[i] = false;
             }
         }
 
@@ -185,7 +185,7 @@ namespace SortingVisualiser
 
         private ICommand markAsSortedIndex(int index)
         {
-            return new SortedMarkCommand(this, index);
+            return new MarkAsSortedCommand(this, index);
         }
     }
 }

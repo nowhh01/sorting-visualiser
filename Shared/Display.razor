@@ -10,9 +10,9 @@
   @for (int i = 0; i < Controller.Numbers.Count; i++)
   {
     Tuple<int, int> highlightedIndices = Controller.ComparedIndices;
-    List<bool> bSorted = Controller.AreSorted;
+    List<bool> bSortedNumbers = Controller.HasSortedNumbers;
 
-    string backgroundColor = bSorted[i] ? SORTED_BAR_COLOR : DEFAULT_BAR_COLOR;
+    string backgroundColor = bSortedNumbers[i] ? SORTED_BAR_COLOR : DEFAULT_BAR_COLOR;
 
     if (i == highlightedIndices.Item1 || i == highlightedIndices.Item2)
     {
