@@ -9,6 +9,8 @@
     <Button Title="Merge Sort" IsDisabled="hasSort" OnClick="@(() => handleSortClick(ESortType.Merge))" />
     <Button Title="Quick Sort" IsDisabled="hasSort" OnClick="@(() => handleSortClick(ESortType.Quick))" />
     <Button Title="Heap Sort" IsDisabled="hasSort" OnClick="@(() => handleSortClick(ESortType.Heap))" />
+    <Button Title="Comb Sort" IsDisabled="hasSort" OnClick="@(() => handleSortClick(ESortType.Comb))" />
+    <Button Title="Shell Sort" IsDisabled="hasSort" OnClick="@(() => handleSortClick(ESortType.Shell))" />
   </div>
 
   <Display Controller="@mController" DurationInMilliseconds="@mDurationInMilliseconds" />

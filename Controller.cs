@@ -12,6 +12,8 @@ namespace SortingVisualiser
         Merge,
         Quick,
         Heap,
+        Comb,
+        Shell,
     };
 
     public class Controller
@@ -67,6 +69,8 @@ namespace SortingVisualiser
                 () => Algorithm.MergeSort(Numbers, changeComparedIndices, moveIndices, markAsSortedIndex),
                 () => Algorithm.QuickSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
                 () => Algorithm.HeapSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
+                () => Algorithm.CombSort(Numbers, changeComparedIndices, swapIndices, markAllAsSortedIndex),
+                () => Algorithm.ShellSort(Numbers, changeComparedIndices, swapIndices, markAllAsSortedIndex),
             };
 
             RandomizeNumbers(numberCount);
@@ -136,7 +140,7 @@ namespace SortingVisualiser
                 command = mSelectedSortingSteps?.Current;
 
                 moveNextStep();
-             
+
                 if (command is not null)
                 {
                     mCommands.Add(command);
@@ -186,6 +190,11 @@ namespace SortingVisualiser
         private ICommand markAsSortedIndex(int index)
         {
             return new MarkAsSortedCommand(this, index);
+        }
+
+        private ICommand markAllAsSortedIndex()
+        {
+            return new MarkAsSortedAllCommand(this);
         }
     }
 }
