@@ -66,7 +66,7 @@ namespace SortingVisualiser
             {
                 () => Algorithm.BubbleSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
                 () => Algorithm.SelectionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
-                () => Algorithm.InsertionSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
+                () => Algorithm.InsertionSort(Numbers, changeComparedIndices, swapIndices, markAllAsSortedIndex),
                 () => Algorithm.MergeSort(Numbers, changeComparedIndices, moveIndices, markAsSortedIndex),
                 () => Algorithm.QuickSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),
                 () => Algorithm.HeapSort(Numbers, changeComparedIndices, swapIndices, markAsSortedIndex),

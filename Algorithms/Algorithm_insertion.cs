@@ -10,7 +10,7 @@ namespace SortingVisualiser
             IList<int> numbers,
             Func<int, int, ICommand> changeComparedIndices,
             Func<int, int, ICommand> swapIndices,
-            Func<int, ICommand> markAsSortedIndex
+            Func<ICommand> markAllAsSortedIndex
             )
         {
             int i = 1;
@@ -34,10 +34,9 @@ namespace SortingVisualiser
                     }
                 }
 
-                yield return markAsSortedIndex(i - 1);
             }
 
-            yield return markAsSortedIndex(i - 1);
+            yield return markAllAsSortedIndex();
         }
     }
 }
