@@ -1,4 +1,4 @@
-![sorting-visualizer](https://user-images.githubusercontent.com/39201456/140586902-8558fd7a-b7e3-461e-80d5-94892bb22911.gif)
+![sorting-visualizer](https://user-images.githubusercontent.com/39201456/140587819-cfe733be-f5a0-490c-a6f2-a1cc6b4b5e05.gif)
 
 ## sorting-visualiser 
 
