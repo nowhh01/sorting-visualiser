@@ -6,6 +6,7 @@ namespace SortingVisualiser
 {
     public enum ESortType
     {
+        None = -1,
         Bubble,
         Selection,
         Insertion,
@@ -32,6 +33,7 @@ namespace SortingVisualiser
         public Tuple<int, int> ComparedIndices { get; set; } = new(-1, -1);
         public Tuple<int, int> SwappedIndices { get; set; } = new(-1, -1);
 
+        public ESortType SelectedSort { get; set; } = ESortType.None;
         public bool SkipForwarding { get; set; }
         public bool IsFullySorted { get; set; }
         public bool IsSorting { get; set; }
@@ -57,7 +59,6 @@ namespace SortingVisualiser
                 }
             }
         }
-        public bool HasSort => mSelectedSortingSteps is not null;
 
         public Controller(int numberCount)
         {
@@ -109,6 +110,7 @@ namespace SortingVisualiser
 
             mSelectedSortingSteps = null;
 
+            SelectedSort = ESortType.None;
             IsFullySorted = false;
             IsSwapped = false;
 
@@ -118,6 +120,8 @@ namespace SortingVisualiser
 
         public void ChangeSort(ESortType sortType)
         {
+            SelectedSort = sortType;
+
             Func<IEnumerator<ICommand>> enumerator = mSorts[(int)sortType];
 
             mSelectedSortingSteps = enumerator.Invoke();

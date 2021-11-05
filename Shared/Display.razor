@@ -1,16 +1,17 @@
 ﻿@{
-  const string DEFAULT_BAR_COLOR = "DarkGray";
-  const string COMPARED_BAR_COLOR = "Crimson";
-  const string SORTED_BAR_COLOR = "DarkSlateBlue";
-  const string SWAP_ANIMATED_BAR_COLOR = "LightGreen";
-  const string MOVE_ANIMATED_BAR_COLOR = "RosyBrown";
+  int numberCount = Controller.Numbers.Count;
+  int adjuster = numberCount / 10;
+  int barWidth = MAX_BAR_WIDTH / (numberCount / 10);
+  int barMargin = MAX_BAR_MARGIN - adjuster;
 }
 
-<div style="display: inline-flex; align-self: center;">
-  @for (int i = 0; i < Controller.Numbers.Count; i++)
+<MudGrid Class="flex-nowrap my-5" Justify="Justify.Center">
+  @for (int i = 0; i < numberCount; i++)
   {
-    Tuple<int, int> highlightedIndices = Controller.ComparedIndices;
-    List<bool> bSortedNumbers = Controller.HasSortedNumbers;
+    Tuple<int, int>
+      highlightedIndices = Controller.ComparedIndices;
+    List<bool>
+      bSortedNumbers = Controller.HasSortedNumbers;
 
     string backgroundColor = bSortedNumbers[i] ? SORTED_BAR_COLOR : DEFAULT_BAR_COLOR;
 
@@ -19,7 +20,8 @@
       backgroundColor = COMPARED_BAR_COLOR;
     }
 
-    Tuple<int, int> animatedIndices = Controller.SwappedIndices;
+    Tuple<int, int>
+      animatedIndices = Controller.SwappedIndices;
     string? containerStyle = null;
 
     if (isSwapAnimated)
@@ -37,7 +39,8 @@
     }
     else if (isMoveAnimated)
     {
-      Tuple<int, int>? tuple =
+      Tuple<int, int>
+        ? tuple =
         Controller.MovedIndices.FirstOrDefault(tuple => tuple.Item2 == i);
 
       if (tuple is not null)
@@ -52,12 +55,18 @@
     int number = Controller.Numbers[i];
     int height = number * 2;
 
-    string barStyle = $"background-color: {backgroundColor}; width: 20px; height: {height}px;";
+    containerStyle += $"margin: 10px {barMargin}px";
+    string barStyle = $"background-color: {backgroundColor}; width: {barWidth}px; height: {height}px;";
+    string fontStyle = $"font-size: {MAX_BAR_FONT_SIZE - adjuster}px";
     string key = $"{i}{backgroundColor}{containerStyle}";
 
-    <Bar @key="@key" Number="@number" ContainerStyle="@containerStyle" BarStyle="@barStyle" />
+    <Bar @key="@key" Number="@number" ContainerStyle="@containerStyle" BarStyle="@barStyle" FontStyle="@fontStyle" />
   }
-</div>
+</MudGrid>
+
+@{
+  int width = barWidth + barMargin * 2;
+}
 
 @if (isSwapAnimated)
 {
@@ -66,7 +75,7 @@
   <style>
     @@keyframes swap1 {
       0% {
-        transform: translateX(@($"{(indices.Item2 - indices.Item1) * 30}px"))
+        transform: translateX(@($"{(indices.Item2 - indices.Item1) * width}px"))
       }
       100% {
         transform: translateX("0px")
@@ -75,7 +84,7 @@
 
     @@keyframes swap2 {
       0% {
-        transform: translateX(@($"{(indices.Item1 - indices.Item2) * 30}px"))
+        transform: translateX(@($"{(indices.Item1 - indices.Item2) * width}px"))
       }
       100% {
         transform: translateX("0px")
@@ -95,7 +104,7 @@ else if (isMoveAnimated)
     <style>
       @@keyframes @($"move{gap}") {
         0% {
-          transform: translateX(@($"{gap * 30}px"))
+          transform: translateX(@($"{gap * width}px"))
         }
         100% {
           transform: translateX("0px")
@@ -106,6 +115,16 @@ else if (isMoveAnimated)
 }
 
 @code {
+  const string DEFAULT_BAR_COLOR = "DarkGray";
+  const string COMPARED_BAR_COLOR = "Crimson";
+  const string SORTED_BAR_COLOR = "DarkSlateBlue";
+  const string SWAP_ANIMATED_BAR_COLOR = "LightGreen";
+  const string MOVE_ANIMATED_BAR_COLOR = "RosyBrown";
+
+  const int MAX_BAR_WIDTH = 40;
+  const int MAX_BAR_MARGIN = 7;
+  const int MAX_BAR_FONT_SIZE = 16;
+
   [Parameter]
   public Controller Controller { get; set; }
   [Parameter]

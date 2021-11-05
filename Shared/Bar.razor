@@ -1,18 +1,18 @@
-﻿@{
-  <div style="margin: 10px 5px; text-align: center; @ContainerStyle">
-    @if (Number.HasValue)
-    {
-      <span>@Number.Value</span>
-    }
-    <div style="@BarStyle" />
-  </div>
-}
+﻿<div class="d-flex flex-column align-center" style="@ContainerStyle">
+  @if (Number.HasValue)
+  {
+    <span style="@FontStyle">@Number.Value</span>
+  }
+  <div style="@BarStyle" />
+</div>
 
 @code {
-    [Parameter]
-    public string BarStyle { get; set; } = string.Empty;
-    [Parameter]
-    public string? ContainerStyle { get; set; }
-    [Parameter]
-    public int? Number { get; set; }
+  [Parameter]
+  public string BarStyle { get; set; } = string.Empty;
+  [Parameter]
+  public string? ContainerStyle { get; set; }
+  [Parameter]
+  public string? FontStyle { get; set; }
+  [Parameter]
+  public int? Number { get; set; }
 }
