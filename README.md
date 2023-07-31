@@ -2,7 +2,7 @@
 
 ## sorting-visualiser 
 
-[Demo](https://practical-spence-e9eefa.netlify.app/)
+[Demo](https://sortingvisualiser-nowhh01.netlify.app/)
 
 ### Technologies
 - Blazor WebAssembly (.Net 5)
