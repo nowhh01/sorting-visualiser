@@ -5,5 +5,5 @@
 [Demo](https://sortingvisualiser-nowhh01.netlify.app/)
 
 ### Technologies
-- Blazor WebAssembly (.Net 5)
+- Blazor WebAssembly (.Net 6)
 - [MudBlazor](https://mudblazor.com/) (UI library)
